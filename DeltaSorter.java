@@ -22,20 +22,26 @@ public class DeltaSorter {
 	 * @throws IllegalArgumentException if delta is less than 0 or greater than or
 	 *         equal to the size of the list
 	 */
-	public static <T extends Comparable<? super T>> void sort(List<T> list, int delta){
-		BinaryMaxHeap<T> heap = new BinaryMaxHeap<>();
-		Iterator<T> iter = list.iterator(); int k = 0;
-		while(iter.hasNext()) {
-			heap.add(list.get(k)); k++; //Maybe?
-			if(k > delta) {
-				heap.add(list.get(k));
-				list.add(k, heap.extractMax());
-			}
-		}
-		for(int i = 0; i < heap.size(); i++) {
-			list.add(i, heap.extractMax());
-		}
-		
+	public static <T extends Comparable<? super T>> void sort(List<T> list, int delta) {
+	    if (delta < 0 || delta >= list.size())
+	        throw new IllegalArgumentException("delta out of range");
+
+	    BinaryMaxHeap<T> heap = new BinaryMaxHeap<>();
+
+	    // Pre-load the first delta+1 elements
+	    for (int i = 0; i <= delta; i++)
+	        heap.add(list.get(i));
+
+	    int outputIndex = 0;
+	    // For each remaining element, extract max and add next element
+	    for (int i = delta + 1; i < list.size(); i++) {
+	        list.set(outputIndex++, heap.extractMax());
+	        heap.add(list.get(i));
+	    }
+
+	    // Drain the heap
+	    while (heap.size() > 0)
+	        list.set(outputIndex++, heap.extractMax());
 	}
 	
 	/**
@@ -49,14 +55,25 @@ public class DeltaSorter {
 	 * @throws IllegalArgumentException if delta is less than 0 or greater than or
 	 *         equal to the size of the list
 	 */
-	public static <T> void sort(List<T> list, int delta, Comparator<? super T> cmp){
-		BinaryMaxHeap<T> heap = new BinaryMaxHeap<T>(cmp);
-		heap.add(list.get(delta)); list.remove(delta);
-		for(T item: list) {
-			heap.add(item);
-		}
-		for(int i = 0; i < heap.size(); i++) {
-			list.add(i, heap.extractMax());
-		}
+	public static <T> void sort(List<T> list, int delta, Comparator<? super T> cmp) {
+	    if (delta < 0 || delta >= list.size())
+	        throw new IllegalArgumentException("delta out of range");
+
+	    BinaryMaxHeap<T> heap = new BinaryMaxHeap<>(cmp);
+
+	    // Pre-load the first delta+1 elements
+	    for (int i = 0; i <= delta; i++)
+	        heap.add(list.get(i));
+
+	    int outputIndex = 0;
+	    // For each remaining element, extract max and add next element
+	    for (int i = delta + 1; i < list.size(); i++) {
+	        list.set(outputIndex++, heap.extractMax());
+	        heap.add(list.get(i));
+	    }
+
+	    // Drain the heap
+	    while (heap.size() > 0)
+	        list.set(outputIndex++, heap.extractMax());
 	}
 }
